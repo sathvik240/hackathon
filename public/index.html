@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SecondLook</title>
+<meta name="description" content="Paste a suspicious text, email, or link. SecondLook marks the warning signs and tells you what to do next. Runs on your device.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;600&family=Literata:opsz,wght@7..72,600;7..72,700&display=swap">
+<link rel="stylesheet" href="styles.css">
+<!-- styles:end -->
+</head>
+<body>
+<!-- app:start -->
+<div class="page" id="top">
+  <header class="masthead">
+    <a class="logo" href="#top" aria-label="SecondLook home">
+      <svg class="logo-mark" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="3" y="6" width="26" height="19" rx="5" class="logo-bubble"/>
+        <path d="M9 25 L9 31 L15 25" class="logo-bubble"/>
+        <rect x="8" y="12" width="12" height="3.2" rx="1.6" class="logo-mark-hl"/>
+        <circle cx="26" cy="24" r="7.5" class="logo-lens"/>
+        <path d="M31.5 29.5 L37 35" class="logo-handle"/>
+      </svg>
+      <span class="logo-word">Second<span>Look</span></span>
+    </a>
+    <nav class="tabs" aria-label="Sections">
+      <button type="button" class="tab" id="tab-check" aria-controls="view-check" aria-selected="true">Check a message</button>
+      <button type="button" class="tab" id="tab-practice" aria-controls="view-practice" aria-selected="false">Practice</button>
+    </nav>
+    <div class="textsize" role="group" aria-label="Text size">
+      <button type="button" class="textsize-btn" data-size="1" aria-pressed="true" aria-label="Normal text">A</button>
+      <button type="button" class="textsize-btn" data-size="2" aria-pressed="false" aria-label="Larger text">A</button>
+      <button type="button" class="textsize-btn" data-size="3" aria-pressed="false" aria-label="Largest text">A</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="view-check" class="view" aria-labelledby="check-title">
+      <div class="intro">
+        <h1 id="check-title">Got a message that feels off?</h1>
+        <p class="lede">Paste it here before you click, call, or pay. SecondLook marks the warning signs like a careful friend with a highlighter, then tells you what to do next.</p>
+        <p class="privacy"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2 L16 4.5 V9.5 C16 13.5 13.4 16.5 10 18 C6.6 16.5 4 13.5 4 9.5 V4.5 Z"/></svg>Checked on this device. Nothing you paste is sent anywhere unless you ask for an AI second opinion.</p>
+      </div>
+
+      <div class="desk">
+        <section class="sheet message-sheet" aria-labelledby="message-title">
+          <div class="sheet-head">
+            <h2 id="message-title">The message</h2>
+            <span class="tag" id="example-tag" hidden>Example</span>
+          </div>
+
+          <div id="editor">
+            <label class="field-label" for="message-input">Paste the text, email, or link you received</label>
+            <textarea id="message-input" rows="9" spellcheck="false" placeholder="For example: “USPS: Your package is on hold. Update your address at…”"></textarea>
+          </div>
+
+          <div id="annotated" class="annotated" hidden>
+            <div class="annotated-text" id="annotated-text"></div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-primary" id="check-btn">Check this message</button>
+            <button type="button" class="btn btn-quiet" id="edit-btn" hidden>Edit message</button>
+            <button type="button" class="btn btn-quiet" id="clear-btn">Clear</button>
+          </div>
+
+          <div class="examples">
+            <p class="examples-label" id="examples-label">Or try a real-world example:</p>
+            <div class="chips" id="example-chips" role="group" aria-labelledby="examples-label"></div>
+          </div>
+
+          <div class="legend" id="legend" hidden>
+            <p class="legend-title">What the colors mean</p>
+            <ul class="legend-list" id="legend-list"></ul>
+          </div>
+
+          <section class="links-panel" id="links-panel" hidden aria-labelledby="links-title">
+            <h3 id="links-title">Where the links really go</h3>
+            <p class="links-hint">Read a web address from the right. The part just before the first single slash is the real website.</p>
+            <ul class="link-list" id="link-list"></ul>
+          </section>
+        </section>
+
+        <aside class="sheet verdict-sheet" id="verdict" aria-live="polite" aria-labelledby="verdict-label">
+          <div class="verdict-empty" id="verdict-empty">
+            <p class="eyebrow">Our verdict</p>
+            <p class="verdict-placeholder">Paste a message and press <strong>Check this message</strong>. Your verdict will appear here.</p>
+          </div>
+
+          <div id="verdict-body" hidden>
+            <div class="verdict-top">
+              <p class="eyebrow">Our verdict</p>
+              <h2 class="verdict-label" id="verdict-label"></h2>
+              <div class="meter" id="meter" role="img">
+                <div class="meter-track">
+                  <span class="meter-seg" data-level="low"></span>
+                  <span class="meter-seg" data-level="caution"></span>
+                  <span class="meter-seg" data-level="likely"></span>
+                  <span class="meter-seg" data-level="very_likely"></span>
+                  <span class="meter-pin" id="meter-pin"></span>
+                </div>
+                <div class="meter-scale" aria-hidden="true"><span>No signs</span><span>Careful</span><span>Likely</span><span>Very likely</span></div>
+              </div>
+              <p class="verdict-summary" id="verdict-summary"></p>
+            </div>
+
+            <div class="kind" id="kind" hidden>
+              <p class="kind-name">This looks like <span id="kind-article">a</span> <strong id="kind-name"></strong></p>
+              <p class="kind-tell" id="kind-tell"></p>
+            </div>
+
+            <div class="tools">
+              <button type="button" class="btn btn-tool" id="speak-btn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 8 H6 L10 4.5 V15.5 L6 12 H3 Z"/><path d="M13 7 C14.3 8.3 14.3 11.7 13 13 M15.2 5 C17.6 7.4 17.6 12.6 15.2 15" class="stroke"/></svg><span>Read it to me</span></button>
+              <button type="button" class="btn btn-tool" id="share-btn" aria-expanded="false" aria-controls="share-panel"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="7" cy="7" r="3"/><path d="M2 16 C2 12.5 4.5 11 7 11 C9.5 11 12 12.5 12 16 Z"/><path d="M14 6 V12 M11 9 H17" class="stroke"/></svg><span>Ask someone I trust</span></button>
+              <button type="button" class="btn btn-tool" id="ai-btn" aria-expanded="false" aria-controls="ai-panel"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2 L11.8 8.2 L18 10 L11.8 11.8 L10 18 L8.2 11.8 L2 10 L8.2 8.2 Z"/></svg><span>AI second opinion</span></button>
+            </div>
+
+            <section class="panel" id="share-panel" hidden aria-labelledby="share-title">
+              <h3 id="share-title">Ask someone you trust</h3>
+              <p class="panel-note">Scammers count on you deciding alone. Send this to a family member or friend before you act.</p>
+              <label class="field-label" for="share-text">Message to send</label>
+              <textarea id="share-text" rows="6"></textarea>
+              <div class="actions">
+                <button type="button" class="btn btn-primary" id="copy-share">Copy message</button>
+                <a class="btn btn-quiet" id="sms-share" href="#">Text it</a>
+                <a class="btn btn-quiet" id="mail-share" href="#">Email it</a>
+              </div>
+              <p class="panel-status" id="share-status" role="status"></p>
+            </section>
+
+            <section class="panel ai-panel" id="ai-panel" hidden aria-labelledby="ai-title">
+              <h3 id="ai-title">AI second opinion</h3>
+              <p class="panel-note" id="ai-note">Checking whether the AI second opinion is available…</p>
+              <div id="ai-controls" hidden>
+                <div class="ai-fields">
+                  <div>
+                    <label class="field-label" for="ai-language">Explain it in</label>
+                    <select id="ai-language"></select>
+                  </div>
+                  <div id="ai-image-field" hidden>
+                    <label class="field-label" for="ai-image">Add a screenshot (optional)</label>
+                    <input type="file" id="ai-image" accept="image/png,image/jpeg,image/webp,image/gif">
+                  </div>
+                </div>
+                <p class="panel-note small">Your message is sent to Claude, an AI by Anthropic, to get this second opinion.</p>
+                <div class="actions">
+                  <button type="button" class="btn btn-primary" id="ai-run">Ask Claude</button>
+                  <button type="button" class="btn btn-quiet" id="ai-stop" hidden>Stop</button>
+                </div>
+              </div>
+              <div class="ai-result" id="ai-result" hidden></div>
+            </section>
+
+            <section class="reasons" aria-labelledby="reasons-title">
+              <h3 id="reasons-title">Why we think so</h3>
+              <ul class="finding-list" id="finding-list"></ul>
+              <ul class="good-list" id="good-list" hidden></ul>
+            </section>
+
+            <section class="steps" aria-labelledby="steps-title">
+              <h3 id="steps-title">What to do now</h3>
+              <ol class="step-list" id="step-list"></ol>
+              <div class="callout" id="acted" hidden>
+                <p class="callout-title">Already clicked, paid, or shared something?</p>
+                <ul id="acted-list"></ul>
+              </div>
+            </section>
+
+            <details class="report" id="report">
+              <summary>Report it and help stop it</summary>
+              <ul class="report-list" id="report-list"></ul>
+            </details>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="view-practice" class="view" hidden aria-labelledby="practice-title">
+      <div class="intro">
+        <h1 id="practice-title">Scam or not?</h1>
+        <p class="lede">Eight real-world messages. Decide, then see the warning signs. People who practice spotting scams are less likely to fall for them.</p>
+      </div>
+      <div class="practice">
+        <div class="practice-progress">
+          <p id="practice-count">Message 1 of 8</p>
+          <ol class="dots" id="practice-dots" aria-hidden="true"></ol>
+        </div>
+        <div class="sheet practice-card" id="practice-card">
+          <p class="phone-label" id="practice-label">Text message</p>
+          <div class="bubble" id="practice-bubble"></div>
+          <div class="actions practice-choices" id="practice-choices">
+            <button type="button" class="btn btn-danger" data-answer="scam">It’s a scam</button>
+            <button type="button" class="btn btn-safe" data-answer="legit">It looks real</button>
+          </div>
+          <div class="practice-reveal" id="practice-reveal" hidden aria-live="polite">
+            <p class="reveal-banner" id="reveal-banner" tabindex="-1"></p>
+            <p class="reveal-explain" id="reveal-explain"></p>
+            <ul class="finding-list compact" id="reveal-findings"></ul>
+            <div class="actions"><button type="button" class="btn btn-primary" id="practice-next">Next message</button></div>
+          </div>
+          <div class="practice-done" id="practice-done" hidden>
+            <p class="done-score" id="done-score"></p>
+            <p class="done-note">The three questions that catch most scams: Did I expect this? Is someone rushing me? Am I being asked to pay or share something unusual?</p>
+            <div class="actions"><button type="button" class="btn btn-primary" id="practice-restart">Start over</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><strong>Why this matters:</strong> Americans 60 and older reported nearly $4.9 billion in fraud losses to the FBI in 2024, up 43% from the year before. Most scams are never reported.</p>
+    <p>SecondLook gives guidance, not a guarantee. When in doubt, contact the organization using a phone number or website you already trust. Example messages are made up and modeled on real reported scams; names of companies in them are used only to show how impersonation works.</p>
+  </footer>
+</div>
+<!-- app:end -->
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

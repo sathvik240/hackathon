@@ -1,0 +1,19 @@
+{
+  "name": "secondlook",
+  "version": "1.0.0",
+  "description": "Paste a suspicious text, email, or link. SecondLook marks the warning signs and tells you what to do next.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js",
+    "build": "node scripts/build-standalone.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0"
+  }
+}
