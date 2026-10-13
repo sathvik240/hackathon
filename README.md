@@ -1,5 +1,7 @@
 # SecondLook
 
+> This repository holds two hackathon projects. **[Bystander](bystander/)** is a live CPR coach with an AI voice agent that calls the dispatcher at the same time; see [`bystander/README.md`](bystander/README.md). The rest of this page is about SecondLook.
+
 **Get a second look before you click, call, or pay.**
 
 SecondLook is a scam checker built for older adults and the families who look out for them. Paste a suspicious text, email, or link. SecondLook highlights the warning signs in the message, shows where each link really goes, names the kind of scam, and tells you what to do next, in plain words.

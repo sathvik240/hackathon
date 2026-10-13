@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0e13">
+  <title>Dispatcher Console</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/dispatch.js"></script>
+</head>
+<body class="console">
+  <header class="console-head">
+    <img src="icon.svg" alt="" width="32" height="32">
+    <h1>Dispatcher console <small>Bystander demo</small></h1>
+    <span class="pill" id="conn">Offline</span>
+  </header>
+
+  <section class="duty" id="key-form" hidden>
+    <h2>Enter the dispatcher key</h2>
+    <p class="fine">The server prints a link with the key when it starts.</p>
+    <div class="type-row">
+      <input id="key-input" autocomplete="off" placeholder="Dispatcher key">
+      <button class="primary" id="key-save">Connect</button>
+    </div>
+  </section>
+
+  <section class="duty" id="duty" hidden>
+    <h2>Stand by for calls</h2>
+    <p>When the Bystander app starts an emergency and no phone line is set up, the call rings here. Phone calls placed through Twilio show up too, so the room can follow the transcript.</p>
+    <button class="primary" id="duty-btn">Go on duty</button>
+    <p class="fine">Going on duty turns on sound so the call can ring and the AI caller can speak.</p>
+  </section>
+
+  <main class="console-grid" id="console" hidden>
+    <section class="panel call-panel">
+      <div class="incoming" id="incoming" hidden>
+        <div class="ring-icon" aria-hidden="true"></div>
+        <div>
+          <strong>Incoming call</strong>
+          <small>Bystander AI caller</small>
+        </div>
+        <button class="danger" id="decline-btn">Decline</button>
+        <button class="primary answer" id="answer-btn">Answer</button>
+      </div>
+      <div class="call-state" id="call-state">
+        <span class="call-dot" id="console-dot"></span>
+        <span id="call-text">Waiting for a call…</span>
+        <span class="clock small" id="console-clock"></span>
+        <button class="text-btn" id="hangup-btn" hidden>Hang up</button>
+      </div>
+      <p class="monitor" id="monitor" hidden>This call is on a real phone line. The audio is on the dispatcher’s phone; this screen mirrors the transcript.</p>
+      <ol class="transcript" id="transcript" aria-live="polite"></ol>
+      <div class="ask" id="ask">
+        <div class="chips" id="chips"></div>
+        <div class="type-row">
+          <button id="mic-btn" aria-label="Speak">🎙 Speak</button>
+          <input id="ask-input" maxlength="500" placeholder="Ask the AI caller, or “tell them …”" autocomplete="off">
+          <button class="primary" id="ask-btn">Send</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel incident-panel" id="incident">
+      <p class="fine">No active incident.</p>
+    </section>
+  </main>
+</body>
+</html>
