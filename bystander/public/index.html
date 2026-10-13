@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b0e13">
+  <meta name="description" content="Bystander coaches you through CPR on live video while an AI voice agent calls for help.">
+  <title>Bystander</title>
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <main id="app">
+
+    <!-- Home -->
+    <section class="screen home" id="home">
+      <header class="brand">
+        <img src="icon.svg" alt="" width="48" height="48">
+        <div>
+          <h1>Bystander</h1>
+          <p>A live CPR coach, and an AI that calls for help at the same time.</p>
+        </div>
+      </header>
+
+      <button class="hero danger" id="go-emergency">
+        <strong>Someone collapsed</strong>
+        <span>Coach me through CPR and call the dispatcher</span>
+      </button>
+      <button class="hero" id="go-train">
+        <strong>Train now</strong>
+        <span>Practice on a pillow and get scored against AHA targets</span>
+      </button>
+
+      <h2 class="label">Other emergencies</h2>
+      <div class="tiles">
+        <button class="tile" data-scenario="choking">Choking</button>
+        <button class="tile" data-scenario="bleeding">Severe bleeding</button>
+        <button class="tile" data-scenario="overdose">Opioid overdose</button>
+      </div>
+
+      <p class="status" id="server-status">Checking the AI caller…</p>
+      <p class="fine">Training and assist prototype. The AI caller only phones the demo number set on the server, never 911. In a real emergency, call 911 yourself and put it on speaker.</p>
+      <button class="text-btn" id="open-settings">Settings</button>
+    </section>
+
+    <!-- Responsiveness check -->
+    <section class="screen check" id="check" hidden>
+      <button class="text-btn back" data-home>← Back</button>
+      <h2>Is the person unresponsive and not breathing normally?</h2>
+      <p>Tap their shoulders and shout. Watch the chest for up to 10 seconds. Gasping is <em>not</em> normal breathing.</p>
+      <div class="segmented" role="radiogroup" aria-label="Age">
+        <button role="radio" aria-checked="true" data-age="adult">Adult</button>
+        <button role="radio" aria-checked="false" data-age="child">Child</button>
+      </div>
+      <button class="hero danger" id="check-yes">
+        <strong>Yes, start CPR</strong>
+        <span>The coach starts and the AI calls the dispatcher</span>
+      </button>
+      <button class="hero" id="check-no">
+        <strong>They’re breathing</strong>
+        <span>Show what to do instead</span>
+      </button>
+      <div class="note" id="breathing-note" hidden>
+        <p><strong>Roll them onto their side</strong> (recovery position), keep their airway open, and stay with them. Call 911. If they stop breathing normally, start CPR.</p>
+      </div>
+    </section>
+
+    <!-- CPR coach (emergency and training) -->
+    <section class="screen coach" id="coach" hidden>
+      <div class="stage" id="stage">
+        <video id="video" playsinline muted hidden></video>
+        <canvas id="overlay"></canvas>
+        <div class="frame-guide" id="frame-guide">
+          <svg viewBox="0 0 200 160" aria-hidden="true">
+            <path d="M40 30 a12 12 0 1 1 0.1 0 M44 44 L58 92 L54 128 M58 92 L96 98 L100 140 M48 52 L98 74 L104 112" />
+            <rect x="96" y="112" width="96" height="30" rx="8" />
+          </svg>
+          <p id="frame-hint">Prop the phone 1.5–2 m away at chest height, looking at you from the side.</p>
+        </div>
+        <p class="tap-hint" id="tap-hint" hidden>Tap the center of the chest</p>
+      </div>
+
+      <div class="hud">
+        <div class="hud-top">
+          <span class="pill" id="mode-pill">Training</span>
+          <span class="clock" id="clock">0:00</span>
+          <span class="pill" id="track-pill">Starting…</span>
+          <button class="end-btn" id="end-btn">End</button>
+        </div>
+        <div class="meter">
+          <div class="rate" id="rate-box">
+            <span id="rate">—</span>
+            <small>per min</small>
+          </div>
+          <div class="facts">
+            <div><b id="count">0</b><small>compressions</small></div>
+            <div><b id="depth">–</b><small>depth (est.)</small></div>
+          </div>
+        </div>
+        <div class="scale" aria-hidden="true">
+          <div class="band"></div>
+          <div class="needle" id="needle"></div>
+          <span>80</span><span>100</span><span>120</span><span>140</span>
+        </div>
+        <div class="checks" id="checks">
+          <span data-check="elbows">Elbows locked</span>
+          <span data-check="shoulders">Shoulders over hands</span>
+          <span data-check="hands">Hands on chest</span>
+        </div>
+        <p class="cue" id="cue" aria-live="polite"></p>
+      </div>
+
+      <div class="toolbar">
+        <button id="mark-btn">Mark chest</button>
+        <button id="beat-btn" aria-pressed="true">Beat</button>
+        <button id="voice-btn" aria-pressed="true">Voice</button>
+        <button id="flip-btn">Flip camera</button>
+      </div>
+      <div class="sim-bar" id="sim-bar" hidden>
+        <span>Simulated rescuer</span>
+        <button data-sim="slower" aria-label="Slower">−</button>
+        <b id="sim-rate">110</b>
+        <button data-sim="faster" aria-label="Faster">+</button>
+        <button data-sim="elbows" aria-pressed="false">Bend elbows</button>
+        <button data-sim="pause" aria-pressed="false">Pause</button>
+      </div>
+      <div class="caller-slot" data-caller-slot></div>
+    </section>
+
+    <!-- Step-by-step guide (choking, bleeding, overdose) -->
+    <section class="screen guide" id="guide" hidden>
+      <div class="guide-head">
+        <span class="pill danger">Emergency</span>
+        <h2 id="guide-title"></h2>
+        <span class="clock" id="guide-clock">0:00</span>
+        <button class="end-btn" id="guide-end">End</button>
+      </div>
+      <p class="fine" id="guide-note"></p>
+      <ol class="steps" id="steps"></ol>
+      <div class="step-nav">
+        <button id="step-prev">Back</button>
+        <button id="step-say">Repeat</button>
+        <button class="primary" id="step-next">Next step</button>
+      </div>
+      <p class="timer" id="guide-timer" hidden></p>
+      <button class="hero danger" id="guide-cpr" hidden>
+        <strong>Start CPR</strong>
+        <span>Switch to the live CPR coach. The call continues.</span>
+      </button>
+      <div class="caller-slot" data-caller-slot></div>
+    </section>
+
+    <!-- Scorecard -->
+    <section class="screen score" id="score" hidden>
+      <p class="label">CPR scorecard</p>
+      <h2 id="score-headline"></h2>
+      <p id="score-detail"></p>
+      <div class="score-top">
+        <div><b id="score-count">0</b><small>compressions</small></div>
+        <div><b id="score-time">0:00</b><small>time</small></div>
+        <div><b id="score-pass">0/0</b><small>targets met</small></div>
+      </div>
+      <table class="metrics">
+        <thead><tr><th>Measure</th><th>You</th><th>Target</th><th><span class="sr">Result</span></th></tr></thead>
+        <tbody id="metrics"></tbody>
+      </table>
+      <p class="fine">Targets from American Heart Association adult CPR guidelines (100–120 per minute, 5–6 cm deep, hands-on at least 60% of the time, pauses under 10 seconds). Depth is an estimate from one camera and is not graded.</p>
+      <div class="row">
+        <button class="primary" id="again-btn">Practice again</button>
+        <button id="home-btn">Home</button>
+      </div>
+    </section>
+
+    <!-- The AI caller panel; moves into whichever screen is live -->
+    <aside class="caller" id="caller" hidden>
+      <div class="caller-head">
+        <span class="call-dot" id="call-dot"></span>
+        <div class="caller-title">
+          <strong>AI caller</strong>
+          <small id="call-sub">Starting…</small>
+        </div>
+        <span class="clock small" id="call-clock"></span>
+        <button class="text-btn" id="call-btn">Hang up</button>
+      </div>
+      <div class="relay-banner" id="relay" hidden>
+        <small>Dispatcher says</small>
+        <p id="relay-text"></p>
+      </div>
+      <ol class="call-log" id="call-log"></ol>
+      <p class="nearby" id="nearby" hidden></p>
+      <div class="report-row" id="report-row"></div>
+      <div class="talk-row">
+        <button class="talk" id="talk-btn">Tap and tell the dispatcher</button>
+      </div>
+      <div class="type-row" id="type-row" hidden>
+        <input id="type-input" maxlength="200" placeholder="Message for the dispatcher" autocomplete="off">
+        <button id="type-send">Send</button>
+      </div>
+    </aside>
+  </main>
+
+  <dialog id="settings">
+    <h2>Settings</h2>
+    <label>Address or landmark the caller reads out
+      <input id="set-address" maxlength="200" autocomplete="street-address" placeholder="e.g. Huang Engineering Center, 475 Via Ortega, Stanford">
+    </label>
+    <label>Your callback number
+      <input id="set-callback" type="tel" maxlength="30" autocomplete="tel" placeholder="+1 415 555 0123">
+    </label>
+    <label>Practice round
+      <select id="set-round">
+        <option value="30">30 seconds</option>
+        <option value="60">1 minute</option>
+        <option value="120">2 minutes</option>
+        <option value="0">No limit</option>
+      </select>
+    </label>
+    <label class="checkbox"><input type="checkbox" id="set-sim"> Simulated rescuer (no camera, for demos)</label>
+    <p class="fine">Saved on this device only.</p>
+    <button class="primary" id="settings-done">Done</button>
+  </dialog>
+
+  <dialog id="confirm">
+    <p id="confirm-text"></p>
+    <div class="row">
+      <button id="confirm-no">Keep going</button>
+      <button class="primary danger" id="confirm-yes">End</button>
+    </div>
+  </dialog>
+</body>
+</html>

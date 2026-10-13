@@ -1,0 +1,21 @@
+{
+  "name": "bystander",
+  "version": "0.1.0",
+  "description": "Coaches a bystander through CPR on live video while an AI voice agent calls for help.",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js",
+    "fetch-model": "node scripts/fetch-model.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.133.0",
+    "@mediapipe/tasks-vision": "0.10.35",
+    "ws": "^8.22.0"
+  }
+}
